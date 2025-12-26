@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siya AI - Sanatan Quiz Master</title>
+    <title>Siya AI - Sanatan Quiz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: black; font-family: 'Segoe UI', sans-serif; user-select: none; }
@@ -20,91 +20,84 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
         .settings-box { background: #222; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; border: 1px solid #ff4500; color: white; text-align: center; }
         
+        /* --- CONTACT BANNER (PRO VERSION) --- */
+        #pro-banner {
+            display: none; 
+            background: linear-gradient(90deg, #ff4500, #ffcc00);
+            color: black;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 15;
+            animation: slideDown 0.5s ease-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
         /* --- QUIZ UI LAYER --- */
         #quiz-container { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 55%; /* સ્ક્રીનનો નીચેનો ભાગ */
-            background: linear-gradient(to top, #000000, transparent);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60%; 
+            background: linear-gradient(to top, #000000 10%, transparent);
+            z-index: 10; display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 20px; box-sizing: border-box; text-align: center;
         }
 
         #question-box {
-            background: rgba(20, 20, 20, 0.85);
-            border: 1px solid #ffcc00;
-            color: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-            backdrop-filter: blur(5px);
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold;
+            background: rgba(20, 20, 20, 0.9); border: 1px solid #ffcc00; color: #fff;
+            padding: 20px; border-radius: 15px; margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); backdrop-filter: blur(5px);
+            min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: bold;
         }
 
-        #options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 15px;
+        .contact-link { 
+            color: #ffcc00; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 1.2rem;
+            display: block;
+            margin-top: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
         }
+
+        #options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
 
         .option-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 15px; border-radius: 10px; font-size: 0.9rem;
+            cursor: pointer; transition: 0.3s;
         }
-
         .option-btn:active { transform: scale(0.95); }
-        .correct { background: #28a745 !important; border-color: #28a745 !important; }
-        .wrong { background: #dc3545 !important; border-color: #dc3545 !important; }
+        .correct { background: #28a745 !important; }
+        .wrong { background: #dc3545 !important; }
 
-        /* Controls */
         .controls { display: flex; gap: 10px; width: 100%; }
         .action-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            flex: 1; padding: 15px; border: none; border-radius: 50px;
+            font-weight: bold; font-size: 1rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px;
         }
-
         #start-btn { background: #ff4500; color: white; }
-        #topic-select { 
-            padding: 10px; border-radius: 10px; background: #333; color: white; border: 1px solid #555; width: 100%; margin-bottom: 10px;
-        }
-
-        /* Input Styling */
+        #topic-select { padding: 10px; border-radius: 10px; background: #333; color: white; border: 1px solid #555; width: 100%; margin-bottom: 10px; }
+        
+        .hidden { display: none !important; }
         input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; background: #333; color: white; border: 1px solid #555; border-radius: 5px; box-sizing: border-box; }
         .save-btn { width: 100%; padding: 12px; background: #ff4500; border: none; font-weight: bold; cursor: pointer; color: white; border-radius: 5px; }
-
-        /* Hidden Helper */
-        .hidden { display: none !important; }
 
     </style>
 </head>
 <body>
+
+    <div id="pro-banner">
+        ⚠️ DEMO VERSION: Get Full Version Call: 9276505035
+    </div>
 
     <div id="video-container">
         <video id="silent-video" autoplay muted loop playsinline><source src="silent.mp4" type="video/mp4"></video>
@@ -119,9 +112,9 @@
         <div class="settings-box">
             <h3>સિયા AI સેટિંગ્સ</h3>
             <input type="text" id="userNameInput" placeholder="તમારું નામ">
-            <label style="font-size:12px; display:block; text-align:left;">API Key (Google AI Studio):</label>
-            <textarea id="geminiKeyInput" rows="3" placeholder="AIza..."></textarea>
-            <button class="save-btn" onclick="saveSettings()">સેવ કરો</button>
+            <label style="font-size:12px; display:block; text-align:left;">License Key:</label>
+            <textarea id="geminiKeyInput" rows="3" placeholder="Enter License Key..."></textarea>
+            <button class="save-btn" onclick="saveSettings()">Activate Pro</button>
             <button class="save-btn" style="background:#444; margin-top:5px;" onclick="closeSettings()">બંધ કરો</button>
         </div>
     </div>
@@ -129,8 +122,7 @@
     <div id="quiz-container">
         
         <div id="question-box">
-            સ્વાગત છે! ક્વિઝ શરૂ કરવા માટે વિષય પસંદ કરો અને Start દબાવો.
-        </div>
+            </div>
 
         <div id="options-grid" class="hidden">
             <button class="option-btn" onclick="checkAnswer(0)">A</button>
@@ -144,7 +136,6 @@
                 <option value="Ramayana">રામાયણ (Ramayana)</option>
                 <option value="Mahabharata">મહાભારત (Mahabharata)</option>
                 <option value="Bhagavad Gita">શ્રીમદ ભગવદ ગીતા</option>
-                <option value="Vedas and Puranas">વેદ અને પુરાણ</option>
             </select>
             <div class="controls">
                 <button id="start-btn" class="action-btn" onclick="fetchQuestion()">
@@ -162,12 +153,20 @@
     </div>
 
     <script>
-        // --- ૧. વેરિએબલ્સ અને સેટઅપ ---
-        let userName = localStorage.getItem('vidushi_username') || "દેવેન્દ્રભાઈ";
+        // --- ૧. ડેટા અને વેરિએબલ્સ ---
+        let userName = localStorage.getItem('vidushi_username') || "મિત્ર";
         let geminiKey = localStorage.getItem('vidushi_gemini_key') || "";
-        
-        // ડિફૉલ્ટ મોડેલ 2.5 Flash
         const MODEL_NAME = "gemini-2.5-flash"; 
+
+        // 🛑 DEMO પ્રશ્નો (જ્યારે License Key ન હોય ત્યારે આ વપરાશે)
+        const offlineQuestions = [
+            { q: "શ્રી રામનો જન્મ ક્યાં થયો હતો?", o: ["મથુરા", "અયોધ્યા", "કાશી", "દ્વારકા"], a: 1, e: "શ્રી રામનો જન્મ અયોધ્યામાં સરયુ નદીના કિનારે થયો હતો." },
+            { q: "મહાભારતનું યુદ્ધ કેટલા દિવસ ચાલ્યું હતું?", o: ["૧૦ દિવસ", "૧૪ દિવસ", "૧૮ દિવસ", "૨૧ દિવસ"], a: 2, e: "મહાભારતનું યુદ્ધ કુરુક્ષેત્રમાં ૧૮ દિવસ સુધી ચાલ્યું હતું." },
+            { q: "શ્રીમદ ભગવદ ગીતામાં કેટલા અધ્યાય છે?", o: ["૧૨", "૧૫", "૧૮", "૨૦"], a: 2, e: "ગીતામાં કુલ ૧૮ અધ્યાય અને ૭૦૦ શ્લોક છે." },
+            { q: "લંકાપતિ રાવણના પિતાનું નામ શું હતું?", o: ["વિશ્રવા", "પુલસ્ત્ય", "સુમાલી", "માલ્યવાન"], a: 0, e: "રાવણના પિતા ઋષિ વિશ્રવા અને માતા કૈકસી હતી." },
+            { q: "પાંડવોમાં સૌથી મોટા કોણ હતા?", o: ["ભીમ", "અર્જુન", "યુધિષ્ઠિર", "નકુલ"], a: 2, e: "સૌથી મોટા ભાઈ ધર્મરાજ યુધિષ્ઠિર હતા." },
+            { q: "શ્રીકૃષ્ણના ગુરુનું નામ શું હતું?", o: ["વશિષ્ઠ", "વિશ્વામિત્ર", "સાંદિપની", "દ્રોણાચાર્ય"], a: 2, e: "ભગવાન શ્રીકૃષ્ણ અને બલરામે ઋષિ સાંદિપનીના આશ્રમમાં વિદ્યા પ્રાપ્ત કરી હતી." }
+        ];
 
         const videos = {
             silent: document.getElementById('silent-video'),
@@ -179,169 +178,134 @@
         let currentQuizData = null;
         let isAiSpeaking = false;
 
-        // --- ૨. શરૂઆત ---
+        // --- ૨. શરૂઆત (Startup) ---
         window.onload = () => {
             playVideo('smiling');
+            
             if(!geminiKey) {
-                setTimeout(() => { 
-                    openSettings(); 
-                    speak(`જય શ્રી કૃષ્ણ ${userName}. કૃપા કરીને સેટિંગ્સમાં જઈને તમારી API કી સેવ કરો.`);
-                }, 1000);
+                // 🛑 DEMO MODE (API Key શબ્દ હટાવી દીધો છે)
+                document.getElementById('pro-banner').style.display = 'block';
+                document.getElementById('question-box').innerHTML = `
+                    <div style="color: #ff4500;">⚠️ DEMO VERSION</div>
+                    <div style="font-size: 0.9rem; margin-top:5px;">
+                        Pro Version માટે સંપર્ક કરો:<br>
+                        DEVENDRA RAMANUJ<br>
+                        <a href="tel:9276505035" class="contact-link">📞 9276505035</a>
+                    </div>
+                `;
+                speak(`સ્વાગત છે. આ ડેમો વર્ઝન છે. પ્રો વર્ઝન માટે દેવેન્દ્રભાઈનો સંપર્ક કરો.`);
             } else {
-                setTimeout(() => { 
-                    speak(`જય શ્રી કૃષ્ણ ${userName}. હું તૈયાર છું. આપણે કયા વિષય પર ક્વિઝ રમીશું?`); 
-                }, 1000);
+                // ✅ PRO MODE
+                document.getElementById('question-box').innerText = `જય શ્રી કૃષ્ણ ${userName}! ક્વિઝ રમવા માટે તૈયાર છો?`;
+                speak(`જય શ્રી કૃષ્ણ ${userName}. હું તૈયાર છું.`);
             }
         };
 
-        // --- ૩. વિડીયો કંટ્રોલ ---
-        function playVideo(type) {
-            Object.values(videos).forEach(v => { v.style.display = 'none'; v.pause(); });
+        // --- ૩. વિડીયો અને સ્પીચ (Safe Mode) ---
+        async function playVideo(type) {
+            Object.values(videos).forEach(v => { 
+                v.style.display = 'none'; 
+                try { v.pause(); } catch(e) {} 
+            });
             if(videos[type]) { 
                 videos[type].style.display = 'block'; 
-                videos[type].play().catch(e => console.log("Video play error:", e)); 
+                try { await videos[type].play(); } catch(e) {}
             }
         }
 
-        // --- ૪. બોલવાનું (TTS) ---
         function speak(text) {
+            if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             
-            // ટેક્સ્ટ સાફ કરવો (JSON ચિહ્નો કાઢી નાખવા)
             let cleanText = text.replace(/[*#_]/g, ""); 
-            
             isAiSpeaking = true;
-            playVideo('talking'); // બોલતી વખતે Talking Video
+            playVideo('talking'); 
 
             const u = new SpeechSynthesisUtterance(cleanText);
             u.lang = 'gu-IN';
             u.rate = 0.9;
-            u.pitch = 1.0;
-
-            u.onend = () => { 
-                isAiSpeaking = false; 
-                playVideo('smiling'); // બોલવાનું પૂરું થાય એટલે Smile
-                setTimeout(() => { if(!isAiSpeaking) playVideo('silent'); }, 4000);
-            };
-
+            u.onend = () => { isAiSpeaking = false; playVideo('smiling'); setTimeout(() => { if(!isAiSpeaking) playVideo('silent'); }, 4000); };
+            u.onerror = () => { isAiSpeaking = false; playVideo('silent'); };
             window.speechSynthesis.speak(u);
         }
 
-        // --- ૫. API કોલ અને ક્વિઝ લોજિક ---
+        // --- ૪. પ્રશ્ન પૂછવો (Dual Mode) ---
         async function fetchQuestion() {
-            if(!geminiKey) return alert("Please set API Key in settings!");
-
-            const topic = document.getElementById('topic-select').value;
-            
             // UI Update
             document.getElementById('setup-panel').classList.add('hidden');
             document.getElementById('next-panel').classList.add('hidden');
             document.getElementById('options-grid').classList.add('hidden');
             document.getElementById('question-box').innerText = "સિયા પ્રશ્ન શોધી રહી છે...";
-            
-            playVideo('thinking'); // વિચારવાનો વિડીયો
+            playVideo('thinking');
 
-            // Prompt Engineering
-            const prompt = `
-            You are Siya, a Sanatan Dharma expert. 
-            Generate ONE unique multiple-choice question about "${topic}" in GUJARATI language.
-            
-            STRICT JSON FORMAT REQUIRED:
-            {
-              "q": "Question text here",
-              "o": ["Option A", "Option B", "Option C", "Option D"],
-              "a": 0,
-              "e": "Short explanation in Gujarati to be spoken after answer."
-            }
-            "a" is the index of correct answer (0-3). Do not use Markdown.
-            `;
+            // --- લોજિક: Demo કે API? ---
+            if(!geminiKey) {
+                // 🛑 DEMO MODE
+                setTimeout(() => {
+                    const randomIndex = Math.floor(Math.random() * offlineQuestions.length);
+                    currentQuizData = offlineQuestions[randomIndex];
+                    
+                    speak("આ ડેમો પ્રશ્ન છે. પ્રો વર્ઝન માટે સંપર્ક કરો.");
+                    renderQuestion();
+                }, 2000); 
+            } 
+            else {
+                // ✅ PRO MODE
+                const topic = document.getElementById('topic-select').value;
+                const prompt = `You are Siya. Generate ONE multiple-choice question about "${topic}" in GUJARATI. JSON format: {"q": "Question", "o": ["A","B","C","D"], "a": 0, "e": "Explanation"}. No Markdown.`;
 
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${geminiKey}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-
-                const data = await res.json();
-                let rawText = data.candidates[0].content.parts[0].text;
-                
-                // Clean JSON
-                rawText = rawText.replace(/```json|```/g, "").trim();
-                currentQuizData = JSON.parse(rawText);
-
-                renderQuestion();
-
-            } catch(e) { 
-                console.error(e);
-                playVideo('smiling');
-                document.getElementById('question-box').innerText = "ક્ષમા કરજો, નેટવર્ક અથવા કી માં ભૂલ છે.";
-                document.getElementById('setup-panel').classList.remove('hidden');
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${geminiKey}`, {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await res.json();
+                    let rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                    currentQuizData = JSON.parse(rawText);
+                    renderQuestion();
+                } catch(e) { 
+                    playVideo('smiling');
+                    document.getElementById('question-box').innerText = "Error: License Key Invalid.";
+                    document.getElementById('setup-panel').classList.remove('hidden');
+                }
             }
         }
 
         function renderQuestion() {
-            playVideo('smiling'); // વિચારવાનું બંધ
-            
-            // પ્રશ્ન બતાવો
+            playVideo('smiling');
             document.getElementById('question-box').innerText = currentQuizData.q;
-            
-            // ઓપ્શન બટન્સ સેટ કરો
             const btns = document.querySelectorAll('.option-btn');
             currentQuizData.o.forEach((opt, i) => {
                 btns[i].innerText = opt;
                 btns[i].classList.remove('correct', 'wrong');
                 btns[i].disabled = false;
             });
-
             document.getElementById('options-grid').classList.remove('hidden');
-            
-            // પ્રશ્ન બોલવો હોય તો આ લાઈન અન-કોમેન્ટ કરો:
-            // speak(currentQuizData.q); 
         }
 
         function checkAnswer(index) {
             const btns = document.querySelectorAll('.option-btn');
             const correctIndex = currentQuizData.a;
-
-            // બધા બટન ડિસેબલ કરો
             btns.forEach(b => b.disabled = true);
-
             if (index === correctIndex) {
                 btns[index].classList.add('correct');
-                speak("સરસ! તમારો જવાબ સાચો છે. " + currentQuizData.e);
+                speak("સરસ! જવાબ સાચો છે. " + currentQuizData.e);
             } else {
                 btns[index].classList.add('wrong');
                 btns[correctIndex].classList.add('correct');
-                speak("ખોટો જવાબ. સાચો જવાબ છે " + currentQuizData.o[correctIndex] + ". " + currentQuizData.e);
+                speak("ખોટો જવાબ. સાચો જવાબ છે " + currentQuizData.o[correctIndex]);
             }
-
-            // Next Button બતાવો
             document.getElementById('next-panel').classList.remove('hidden');
         }
 
-        // --- ૬. સેટિંગ્સ ફંક્શન્સ ---
-        function openSettings() { 
-            document.getElementById('settings-modal').style.display = 'flex';
-            document.getElementById('userNameInput').value = userName;
-            document.getElementById('geminiKeyInput').value = geminiKey;
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-modal').style.display = 'none';
-        }
-
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
         function saveSettings() {
-            userName = document.getElementById('userNameInput').value;
-            geminiKey = document.getElementById('geminiKeyInput').value.trim(); // Spaces કાઢી નાખવા
-            
-            localStorage.setItem('vidushi_username', userName);
+            geminiKey = document.getElementById('geminiKeyInput').value.trim();
             localStorage.setItem('vidushi_gemini_key', geminiKey);
-            
             closeSettings();
-            speak("સેટિંગ્સ સેવ થઈ ગયા છે.");
+            location.reload(); 
         }
-
     </script>
 </body>
 </html>
