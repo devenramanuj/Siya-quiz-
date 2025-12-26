@@ -13,6 +13,21 @@
         video { width: 100%; height: 100%; object-fit: cover; position: absolute; display: none; }
         #silent-video { display: block; }
         
+        /* --- START OVERLAY (અવાજ માટે જરૂરી) --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; backdrop-filter: blur(8px);
+        }
+        .pulse-btn {
+            padding: 20px 40px; font-size: 22px; background: #ff4500; color: white;
+            border: none; border-radius: 50px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
         /* --- SETTINGS BUTTON --- */
         .side-btn { position: fixed; top: 20px; right: 20px; z-index: 20; background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         
@@ -20,22 +35,13 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
         .settings-box { background: #222; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; border: 1px solid #ff4500; color: white; text-align: center; }
         
-        /* --- CONTACT BANNER (PRO VERSION) --- */
+        /* --- CONTACT BANNER --- */
         #pro-banner {
             display: none; 
             background: linear-gradient(90deg, #ff4500, #ffcc00);
-            color: black;
-            padding: 10px;
-            font-size: 13px;
-            font-weight: bold;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 15;
-            animation: slideDown 0.5s ease-out;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            color: black; padding: 10px; font-size: 13px; font-weight: bold;
+            text-align: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 15;
+            animation: slideDown 0.5s ease-out; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 
@@ -56,15 +62,9 @@
         }
 
         .contact-link { 
-            color: #ffcc00; 
-            text-decoration: none; 
-            font-weight: bold; 
-            font-size: 1.2rem;
-            display: block;
-            margin-top: 5px;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 5px;
+            color: #ffcc00; text-decoration: none; font-weight: bold; font-size: 1.2rem;
+            display: block; margin-top: 5px; background: rgba(255,255,255,0.1);
+            padding: 5px 10px; border-radius: 5px;
         }
 
         #options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
@@ -94,6 +94,14 @@
     </style>
 </head>
 <body>
+
+    <div id="start-overlay">
+        <h1 style="margin-bottom: 10px; color: #ffcc00;">જય શ્રી કૃષ્ણ</h1>
+        <p style="margin-bottom: 30px; font-size: 14px;">શરૂ કરવા માટે નીચે ક્લિક કરો</p>
+        <button class="pulse-btn" onclick="initializeAudio()">
+            <i class="fas fa-play"></i> START
+        </button>
+    </div>
 
     <div id="pro-banner">
         ⚠️ DEMO VERSION: Get Full Version Call: 9276505035
@@ -158,7 +166,6 @@
         let geminiKey = localStorage.getItem('vidushi_gemini_key') || "";
         const MODEL_NAME = "gemini-2.5-flash"; 
 
-        // 🛑 DEMO પ્રશ્નો (જ્યારે License Key ન હોય ત્યારે આ વપરાશે)
         const offlineQuestions = [
             { q: "શ્રી રામનો જન્મ ક્યાં થયો હતો?", o: ["મથુરા", "અયોધ્યા", "કાશી", "દ્વારકા"], a: 1, e: "શ્રી રામનો જન્મ અયોધ્યામાં સરયુ નદીના કિનારે થયો હતો." },
             { q: "મહાભારતનું યુદ્ધ કેટલા દિવસ ચાલ્યું હતું?", o: ["૧૦ દિવસ", "૧૪ દિવસ", "૧૮ દિવસ", "૨૧ દિવસ"], a: 2, e: "મહાભારતનું યુદ્ધ કુરુક્ષેત્રમાં ૧૮ દિવસ સુધી ચાલ્યું હતું." },
@@ -178,12 +185,25 @@
         let currentQuizData = null;
         let isAiSpeaking = false;
 
-        // --- ૨. શરૂઆત (Startup) ---
-        window.onload = () => {
+        // --- ૨. ઓડિયો અનલોક ફંક્શન (NEW) ---
+        function initializeAudio() {
+            // બટન દબાવવાથી બ્રાઉઝર ઓડિયો ચાલુ કરવા દેશે
+            document.getElementById('start-overlay').style.display = 'none';
             playVideo('smiling');
             
+            // ખાલી અવાજ વગાડો જેથી એન્જિન જાગી જાય
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(" ");
+                window.speechSynthesis.speak(u);
+            }
+
+            // હવે એપનું લોજિક શરૂ કરો
+            checkStatus();
+        }
+
+        function checkStatus() {
             if(!geminiKey) {
-                // 🛑 DEMO MODE (API Key શબ્દ હટાવી દીધો છે)
+                // Demo Mode
                 document.getElementById('pro-banner').style.display = 'block';
                 document.getElementById('question-box').innerHTML = `
                     <div style="color: #ff4500;">⚠️ DEMO VERSION</div>
@@ -195,13 +215,13 @@
                 `;
                 speak(`સ્વાગત છે. આ ડેમો વર્ઝન છે. પ્રો વર્ઝન માટે દેવેન્દ્રભાઈનો સંપર્ક કરો.`);
             } else {
-                // ✅ PRO MODE
+                // Pro Mode
                 document.getElementById('question-box').innerText = `જય શ્રી કૃષ્ણ ${userName}! ક્વિઝ રમવા માટે તૈયાર છો?`;
                 speak(`જય શ્રી કૃષ્ણ ${userName}. હું તૈયાર છું.`);
             }
-        };
+        }
 
-        // --- ૩. વિડીયો અને સ્પીચ (Safe Mode) ---
+        // --- ૩. વિડીયો અને સ્પીચ ---
         async function playVideo(type) {
             Object.values(videos).forEach(v => { 
                 v.style.display = 'none'; 
@@ -229,28 +249,25 @@
             window.speechSynthesis.speak(u);
         }
 
-        // --- ૪. પ્રશ્ન પૂછવો (Dual Mode) ---
+        // --- ૪. પ્રશ્ન પૂછવો ---
         async function fetchQuestion() {
-            // UI Update
             document.getElementById('setup-panel').classList.add('hidden');
             document.getElementById('next-panel').classList.add('hidden');
             document.getElementById('options-grid').classList.add('hidden');
             document.getElementById('question-box').innerText = "સિયા પ્રશ્ન શોધી રહી છે...";
             playVideo('thinking');
 
-            // --- લોજિક: Demo કે API? ---
             if(!geminiKey) {
-                // 🛑 DEMO MODE
+                // Demo Mode
                 setTimeout(() => {
                     const randomIndex = Math.floor(Math.random() * offlineQuestions.length);
                     currentQuizData = offlineQuestions[randomIndex];
-                    
                     speak("આ ડેમો પ્રશ્ન છે. પ્રો વર્ઝન માટે સંપર્ક કરો.");
                     renderQuestion();
                 }, 2000); 
             } 
             else {
-                // ✅ PRO MODE
+                // Pro Mode
                 const topic = document.getElementById('topic-select').value;
                 const prompt = `You are Siya. Generate ONE multiple-choice question about "${topic}" in GUJARATI. JSON format: {"q": "Question", "o": ["A","B","C","D"], "a": 0, "e": "Explanation"}. No Markdown.`;
 
